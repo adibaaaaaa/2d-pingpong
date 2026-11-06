@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Ping Pong - Modern 2D Arcade Game</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambient background glow & stars -->
+  <div class="bg-stars" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow-1" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow-2" aria-hidden="true"></div>
+
+  <!-- Confetti canvas for victory celebration -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <main class="game-wrapper">
+    <!-- ==================== MAIN MENU SCREEN ==================== -->
+    <section id="menu-screen" class="screen active">
+      <div class="menu-decorations" aria-hidden="true">
+        <!-- Cute cat mascot peeking from planetary curve -->
+        <div class="cat-mascot">
+          <svg viewBox="0 0 120 100" class="cat-svg">
+            <!-- Planet curve -->
+            <path d="M-10,95 Q60,65 130,95" fill="none" stroke="rgba(0, 229, 255, 0.4)" stroke-width="2.5" />
+            <!-- Cat head -->
+            <path d="M35,78 C32,55 42,42 60,42 C78,42 88,55 85,78 Z" fill="#0b1723" stroke="#e2f3f9" stroke-width="2.5" />
+            <!-- Left ear -->
+            <polygon points="38,55 30,30 50,44" fill="#0b1723" stroke="#e2f3f9" stroke-width="2.5" stroke-linejoin="round" />
+            <!-- Right ear -->
+            <polygon points="82,55 90,30 70,44" fill="#0b1723" stroke="#e2f3f9" stroke-width="2.5" stroke-linejoin="round" />
+            <!-- Inner ears -->
+            <polygon points="38,50 33,35 46,45" fill="#20e29b" opacity="0.6" />
+            <polygon points="82,50 87,35 74,45" fill="#20e29b" opacity="0.6" />
+            <!-- Eyes -->
+            <circle cx="48" cy="58" r="3.5" fill="#ffffff" />
+            <circle cx="72" cy="58" r="3.5" fill="#ffffff" />
+            <!-- Nose & mouth -->
+            <path d="M57,64 L63,64 L60,67 Z" fill="#20e29b" />
+            <path d="M55,68 Q60,72 60,67 Q60,72 65,68" fill="none" stroke="#e2f3f9" stroke-width="1.8" stroke-linecap="round" />
+            <!-- Whiskers -->
+            <line x1="32" y1="62" x2="42" y2="64" stroke="#e2f3f9" stroke-width="1.5" stroke-linecap="round" />
+            <line x1="30" y1="68" x2="42" y2="67" stroke="#e2f3f9" stroke-width="1.5" stroke-linecap="round" />
+            <line x1="78" y1="64" x2="88" y2="62" stroke="#e2f3f9" stroke-width="1.5" stroke-linecap="round" />
+            <line x1="78" y1="67" x2="90" y2="68" stroke="#e2f3f9" stroke-width="1.5" stroke-linecap="round" />
+            <!-- Little paws -->
+            <ellipse cx="44" cy="80" rx="7" ry="5" fill="#0b1723" stroke="#e2f3f9" stroke-width="2" />
+            <ellipse cx="76" cy="80" rx="7" ry="5" fill="#0b1723" stroke="#e2f3f9" stroke-width="2" />
+          </svg>
+        </div>
+
+        <!-- Crossed Ping Pong Paddles -->
+        <div class="paddles-mascot">
+          <svg viewBox="0 0 120 120" class="paddles-svg">
+            <g transform="rotate(-25 40 60)">
+              <!-- Green Paddle -->
+              <rect x="35" y="65" width="8" height="28" rx="4" fill="#a07a50" stroke="#2c1e13" stroke-width="1.5" />
+              <ellipse cx="39" cy="45" rx="20" ry="24" fill="#2ee59d" stroke="#1da870" stroke-width="2" />
+            </g>
+            <g transform="rotate(35 80 60)">
+              <!-- Beige/White Paddle -->
+              <rect x="75" y="65" width="8" height="28" rx="4" fill="#a07a50" stroke="#2c1e13" stroke-width="1.5" />
+              <ellipse cx="79" cy="45" rx="20" ry="24" fill="#dce6eb" stroke="#a0b3bd" stroke-width="2" />
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu-content">
+        <!-- Title & Slogan -->
+        <header class="title-container">
+          <div class="ball-streak" aria-hidden="true">
+            <span class="streak-dot dot-1"></span>
+            <span class="streak-dot dot-2"></span>
+            <span class="streak-dot dot-3"></span>
+            <span class="streak-ball"></span>
+          </div>
+          <h1 class="game-title">PING PONG</h1>
+          <p class="game-subtitle">
+            <span class="line"></span>
+            Play • Compete • Have Fun!
+            <span class="line"></span>
+          </p>
+        </header>
+
+        <!-- Main Action Buttons & Selectors -->
+        <div class="menu-controls">
+          <button id="btn-play-now" class="btn btn-primary btn-play">
+            <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+            <span>Play</span>
+          </button>
+
+          <!-- Stepper: Game Mode -->
+          <div class="stepper-row">
+            <span class="stepper-label">Game Mode:</span>
+            <div class="stepper-box">
+              <button id="btn-mode-prev" class="stepper-arrow" aria-label="Previous Mode">&lt;</button>
+              <button id="btn-open-mode-modal" class="stepper-display" title="Click to choose mode">
+                <span id="display-mode-text">Player vs AI</span>
+              </button>
+              <button id="btn-mode-next" class="stepper-arrow" aria-label="Next Mode">&gt;</button>
+            </div>
+          </div>
+
+          <!-- Stepper: AI Difficulty (only active if AI mode) -->
+          <div id="difficulty-stepper-row" class="stepper-row">
+            <span class="stepper-label">AI Difficulty:</span>
+            <div class="stepper-box">
+              <button id="btn-diff-prev" class="stepper-arrow" aria-label="Previous Difficulty">&lt;</button>
+              <div class="stepper-display">
+                <span id="display-diff-text">Medium</span>
+              </div>
+              <button id="btn-diff-next" class="stepper-arrow" aria-label="Next Difficulty">&gt;</button>
+            </div>
+          </div>
+
+          <!-- Sound Toggle Switch -->
+          <div class="sound-toggle-row">
+            <div class="sound-info">
+              <svg id="sound-icon-svg" class="sound-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+              </svg>
+              <span id="sound-status-text">Sound: ON</span>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggle-sound" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- How to Play instructions badge -->
+        <footer class="how-to-play-card">
+          <div class="how-to-header">
+            <span class="bulb-icon">💡</span>
+            <strong>How to Play?</strong>
+          </div>
+          <div class="how-to-body">
+            <span><strong>W / S</strong> : Move Left Paddle</span>
+            <span class="separator">|</span>
+            <span><strong>↑ / ↓</strong> : Move Right Paddle</span>
+            <span class="separator">|</span>
+            <span><strong>Space</strong> : Pause</span>
+            <span class="separator">|</span>
+            <span><strong>ESC</strong> : Main Menu</span>
+          </div>
+        </footer>
+      </div>
+    </section>
+
+    <!-- ==================== GAMEPLAY SCREEN ==================== -->
+    <section id="game-screen" class="screen">
+      <!-- In-Game Top Bar -->
+      <header class="game-top-bar">
+        <div class="score-badge player1-score">
+          <span class="score-label" id="label-p1">P1</span>
+          <span class="score-value" id="score-p1">0</span>
+        </div>
+
+        <button id="btn-pause-toggle" class="btn-pause-header" title="Pause Game (Space)" aria-label="Pause Game">
+          <svg class="pause-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+          </svg>
+        </button>
+
+        <div class="score-badge player2-score">
+          <span class="score-label" id="label-p2">AI</span>
+          <span class="score-value" id="score-p2">0</span>
+        </div>
+      </header>
+
+      <!-- Canvas Field Container -->
+      <div class="canvas-container" id="canvas-container">
+        <canvas id="game-canvas"></canvas>
+
+        <!-- Countdown Overlay (3, 2, 1, GO!) -->
+        <div id="countdown-overlay" class="countdown-overlay">
+          <div id="countdown-number" class="countdown-text">3</div>
+        </div>
+
+        <!-- Point Scored Notification -->
+        <div id="point-banner" class="point-banner">
+          <span id="point-banner-text">POINT!</span>
+        </div>
+      </div>
+
+      <!-- In-Game Bottom Bar -->
+      <footer class="game-bottom-bar">
+        <button id="btn-pause-hint" class="hint-pill">
+          <svg viewBox="0 0 24 24" fill="currentColor" class="mini-icon">
+            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+          </svg>
+          <span>Press Space to Pause</span>
+        </button>
+        <div class="game-meta-info">
+          <span id="match-timer-hud">⏱ 00:00</span>
+          <span id="match-rally-hud">⚡ Rally: 0</span>
+        </div>
+      </footer>
+
+      <!-- On-Screen Touch Controls (automatically visible on touch devices or smaller viewports) -->
+      <div id="touch-controls" class="touch-controls-container">
+        <div class="touch-zone touch-zone-left">
+          <button class="touch-btn" id="touch-left-up" aria-label="Left Paddle Up">▲</button>
+          <button class="touch-btn" id="touch-left-down" aria-label="Left Paddle Down">▼</button>
+        </div>
+        <div class="touch-zone touch-zone-right" id="touch-zone-right">
+          <button class="touch-btn" id="touch-right-up" aria-label="Right Paddle Up">▲</button>
+          <button class="touch-btn" id="touch-right-down" aria-label="Right Paddle Down">▼</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SELECT GAME MODE MODAL ==================== -->
+    <div id="mode-modal" class="modal-backdrop">
+      <div class="modal-card mode-modal-content">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <svg class="modal-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4-3c-.83 0-1.5-.67-1.5-1.5S18.67 9 19.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+            </svg>
+            <h2>Select Game Mode</h2>
+          </div>
+          <button id="btn-close-modal" class="btn-close" aria-label="Close Modal">&times;</button>
+        </div>
+
+        <!-- 3 Mode Cards -->
+        <div class="mode-cards-grid">
+          <!-- Mode 1: Player vs AI -->
+          <div class="mode-card active" data-mode="ai" tabindex="0">
+            <div class="mode-icon-wrapper">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <!-- Robot Icon -->
+                <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h4a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3v-8a3 3 0 0 1 3-3h4V5.73A2 2 0 0 1 10 4a2 2 0 0 1 2-2M7.5 11a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m9 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M8 17h8v-1.5H8z"/>
+              </svg>
+            </div>
+            <h3>Player vs AI</h3>
+            <p>Play against smart AI</p>
+          </div>
+
+          <!-- Mode 2: Two Players -->
+          <div class="mode-card" data-mode="pvp" tabindex="0">
+            <div class="mode-icon-wrapper">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <!-- Two Players / People Icon -->
+                <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+              </svg>
+            </div>
+            <h3>Two Players</h3>
+            <p>Battle with a friend</p>
+          </div>
+
+          <!-- Mode 3: Practice Mode -->
+          <div class="mode-card" data-mode="practice" tabindex="0">
+            <div class="mode-icon-wrapper">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <!-- Target / Practice Icon -->
+                <path d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10 10-4.49 10-10S17.51 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+              </svg>
+            </div>
+            <h3>Practice Mode</h3>
+            <p>Improve your skills (no opponent)</p>
+          </div>
+        </div>
+
+        <!-- AI Difficulty Selector Row -->
+        <div id="modal-difficulty-row" class="modal-diff-container">
+          <span class="diff-title">AI Difficulty:</span>
+          <div class="diff-pills-group">
+            <button class="diff-pill" data-diff="easy">Easy</button>
+            <button class="diff-pill active" data-diff="medium">Medium</button>
+            <button class="diff-pill" data-diff="hard">Hard</button>
+          </div>
+        </div>
+
+        <!-- Modal Actions -->
+        <div class="modal-actions">
+          <button id="btn-modal-cancel" class="btn btn-secondary">Cancel</button>
+          <button id="btn-modal-start" class="btn btn-primary">Start Game</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== PAUSE MENU MODAL ==================== -->
+    <div id="pause-modal" class="modal-backdrop">
+      <div class="modal-card pause-modal-content">
+        <div class="pause-header">
+          <div class="pause-symbol">⏸</div>
+          <h2>Game Paused</h2>
+        </div>
+        <p class="pause-subtext">Take a breather or change settings</p>
+        <div class="pause-stats">
+          <div class="stat-item">
+            <span class="stat-label">Elapsed Time</span>
+            <span class="stat-val" id="pause-time">00:00</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Current Rally</span>
+            <span class="stat-val" id="pause-rally">0</span>
+          </div>
+        </div>
+        <div class="pause-actions">
+          <button id="btn-resume" class="btn btn-primary">
+            <span>▶ Resume Game</span>
+          </button>
+          <button id="btn-restart" class="btn btn-outline">
+            <span>↺ Restart Match</span>
+          </button>
+          <button id="btn-menu-from-pause" class="btn btn-secondary">
+            <span>⌂ Main Menu</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== GAME OVER / WIN MODAL ==================== -->
+    <div id="game-over-modal" class="modal-backdrop">
+      <div class="modal-card win-modal-content">
+        <!-- Golden Trophy SVG with Laurel Wreath -->
+        <div class="trophy-badge">
+          <svg viewBox="0 0 120 120" class="trophy-svg">
+            <defs>
+              <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffe259" />
+                <stop offset="50%" stop-color="#ffa751" />
+                <stop offset="100%" stop-color="#ffbe3b" />
+              </linearGradient>
+            </defs>
+            <!-- Laurel leaves left -->
+            <path d="M22,75 Q15,50 30,35 Q25,48 35,58 Q22,70 30,85" fill="none" stroke="#f6c944" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="20" cy="48" r="3" fill="#f6c944"/>
+            <circle cx="28" cy="38" r="3" fill="#f6c944"/>
+            <circle cx="18" cy="62" r="3" fill="#f6c944"/>
+            <!-- Laurel leaves right -->
+            <path d="M98,75 Q105,50 90,35 Q95,48 85,58 Q98,70 90,85" fill="none" stroke="#f6c944" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="100" cy="48" r="3" fill="#f6c944"/>
+            <circle cx="92" cy="38" r="3" fill="#f6c944"/>
+            <circle cx="102" cy="62" r="3" fill="#f6c944"/>
+            <!-- Trophy Cup Base & Stand -->
+            <path d="M42,95 L78,95 L72,85 L48,85 Z" fill="url(#gold-grad)"/>
+            <rect x="56" y="70" width="8" height="16" fill="url(#gold-grad)"/>
+            <!-- Trophy Cup Body -->
+            <path d="M38,35 L82,35 C82,58 72,70 60,70 C48,70 38,58 38,35 Z" fill="url(#gold-grad)" />
+            <!-- Handles -->
+            <path d="M38,40 C24,40 24,55 38,58" fill="none" stroke="url(#gold-grad)" stroke-width="3.5" stroke-linecap="round"/>
+            <path d="M82,40 C96,40 96,55 82,58" fill="none" stroke="url(#gold-grad)" stroke-width="3.5" stroke-linecap="round"/>
+            <!-- Star in trophy -->
+            <polygon points="60,44 62.5,50 68,50 63.5,54 65,60 60,56.5 55,60 56.5,54 52,50 57.5,50" fill="#fff5cc"/>
+          </svg>
+        </div>
+
+        <!-- Winner Title -->
+        <h2 id="winner-title" class="winner-title">Player 1 Wins!</h2>
+
+        <!-- Match Statistics Card -->
+        <div class="win-stats-card">
+          <div class="win-stat-row">
+            <span class="stat-icon">⏱</span>
+            <span class="stat-title">Time:</span>
+            <span id="win-time" class="stat-value">01:23</span>
+          </div>
+          <div class="win-stat-row">
+            <span class="stat-icon">⭐</span>
+            <span class="stat-title">Final Score:</span>
+            <span id="win-score" class="stat-value">10 - 7</span>
+          </div>
+          <div class="win-stat-row" id="win-extra-stat-row">
+            <span class="stat-icon">⚡</span>
+            <span class="stat-title">Max Rally:</span>
+            <span id="win-max-rally" class="stat-value">12 hits</span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="win-actions">
+          <button id="btn-play-again" class="btn btn-primary btn-win">
+            <svg class="icon-btn" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0 0 20 13c0-4.42-3.58-8-8-8zm-6 8c0-1.01.25-1.97.7-2.8L5.24 8.74A7.93 7.93 0 0 0 4 13c0 4.42 3.58 8 8 8v4l5-5-5-5v4c-3.31 0-6-2.69-6-6z"/>
+            </svg>
+            <span>Play Again</span>
+          </button>
+          <button id="btn-win-menu" class="btn btn-secondary btn-win">
+            <svg class="icon-btn" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </svg>
+            <span>Main Menu</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
